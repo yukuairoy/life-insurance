@@ -45,8 +45,8 @@ def main():
     )
 
     if st.button("Calculate IRR"):
-        # Determine start/end of scenario
-        start_age = min(premium_start_age, withdrawal_start_age)
+        # Force the chart to start at the first premium age
+        start_age = premium_start_age
         scenario_end_age = max(death_age, premium_end_age, withdrawal_end_age)
 
         ages = range(start_age, scenario_end_age + 1)
@@ -58,7 +58,9 @@ def main():
 
         # Withdrawal inflows (positive)
         for age in range(withdrawal_start_age, min(withdrawal_end_age, death_age) + 1):
-            net_flows[age - start_age] += annual_withdrawal
+            # Make sure we're within the plotting range
+            if age >= start_age:
+                net_flows[age - start_age] += annual_withdrawal
 
         # Death benefit
         if death_age >= start_age:
@@ -76,7 +78,7 @@ def main():
         # Prepare DataFrame for plotting
         df = pd.DataFrame({"Age": ages, "Net Flow": net_flows})
 
-        # Bar chart with a standard linear scale
+        # Bar chart on a linear scale
         chart = (
             alt.Chart(df)
             .mark_bar()
