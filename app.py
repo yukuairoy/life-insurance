@@ -1,8 +1,9 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
-import numpy_financial as nf  # pip install numpy-financial
+import numpy_financial as nf
 import altair as alt
+
 
 def main():
     st.title("Permanent Life Insurance Rate of Return Calculator")
@@ -10,46 +11,44 @@ def main():
     st.subheader("Premium Payments")
     premium_start_age, premium_end_age = st.slider(
         "Age Range for Paying Premium (inclusive)",
-        min_value=15, max_value=75,
-        value=(30, 50)
+        min_value=15,
+        max_value=75,
+        value=(30, 50),
     )
     annual_premium = st.slider(
-        "Annual Premium Amount",
-        min_value=0, max_value=120_000,
-        value=5000, step=1000
+        "Annual Premium Amount", min_value=0, max_value=120_000, value=5000, step=1000
     )
 
     st.subheader("Withdrawals")
     withdrawal_start_age, withdrawal_end_age = st.slider(
         "Age Range for Withdrawals (inclusive)",
-        min_value=20, max_value=120,
-        value=(60, 80)
+        min_value=20,
+        max_value=120,
+        value=(60, 80),
     )
     annual_withdrawal = st.slider(
         "Annual Withdrawal Amount",
-        min_value=0, max_value=300000,
-        value=30000, step=5000
+        min_value=0,
+        max_value=300000,
+        value=30000,
+        step=5000,
     )
 
     st.subheader("Death Benefit")
-    death_age = st.slider(
-        "Age at Death",
-        min_value=20, max_value=120,
-        value=90
-    )
+    death_age = st.slider("Age at Death", min_value=20, max_value=120, value=90)
     net_death_benefit = st.number_input(
         "Net Death Benefit",
         min_value=1000,
         max_value=4_000_000,
         value=1_000_000,
-        step=1000
+        step=1000,
     )
 
     if st.button("Calculate IRR"):
         # Determine start/end of scenario
         start_age = min(premium_start_age, withdrawal_start_age)
         scenario_end_age = max(death_age, premium_end_age, withdrawal_end_age)
-        
+
         ages = range(start_age, scenario_end_age + 1)
         net_flows = np.zeros(len(ages), dtype=float)
 
@@ -87,15 +86,16 @@ def main():
                 color=alt.condition(
                     alt.datum["Net Flow"] >= 0,
                     alt.value("steelblue"),  # color for >= 0
-                    alt.value("red")         # color for < 0
+                    alt.value("red"),  # color for < 0
                 ),
-                tooltip=["Age", "Net Flow"]
+                tooltip=["Age", "Net Flow"],
             )
             .properties(width=700, height=400, title="Yearly Net Cash Flow")
             .interactive()
         )
 
         st.altair_chart(chart, use_container_width=True)
+
 
 if __name__ == "__main__":
     main()
