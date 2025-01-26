@@ -24,18 +24,18 @@ def main():
         "Age Range for Withdrawals (inclusive)",
         min_value=20,
         max_value=120,
-        value=(60, 80),
+        value=(60, 90),
     )
     annual_withdrawal = st.slider(
         "Annual Withdrawal Amount",
         min_value=0,
         max_value=300000,
         value=30000,
-        step=5000,
+        step=1000,
     )
 
     st.subheader("Death Benefit")
-    death_age = st.slider("Age at Death", min_value=20, max_value=120, value=90)
+    death_age = st.slider("Age at Death", min_value=20, max_value=120, value=86)
     net_death_benefit = st.number_input(
         "Net Death Benefit",
         min_value=1000,
