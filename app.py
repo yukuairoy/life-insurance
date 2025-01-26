@@ -4,7 +4,6 @@ import pandas as pd
 import numpy_financial as nf
 import altair as alt
 
-
 def main():
     st.title("Permanent Life Insurance Rate of Return Calculator")
 
@@ -47,24 +46,25 @@ def main():
     if st.button("Calculate IRR"):
         # Force the chart to start at the first premium age
         start_age = premium_start_age
-        scenario_end_age = max(death_age, premium_end_age, withdrawal_end_age)
+        
+        # ADD 1 year to place the death benefit at the end of the death year
+        scenario_end_age = max(death_age, premium_end_age, withdrawal_end_age) + 1
 
         ages = range(start_age, scenario_end_age + 1)
         net_flows = np.zeros(len(ages), dtype=float)
 
-        # Premium outflows (negative)
+        # Premium outflows (negative), beginning of each year
         for age in range(premium_start_age, min(premium_end_age, death_age) + 1):
             net_flows[age - start_age] -= annual_premium
 
-        # Withdrawal inflows (positive)
+        # Withdrawal inflows (positive), beginning of each year
         for age in range(withdrawal_start_age, min(withdrawal_end_age, death_age) + 1):
-            # Make sure we're within the plotting range
             if age >= start_age:
                 net_flows[age - start_age] += annual_withdrawal
 
-        # Death benefit
+        # Death benefit at the END of the death year => shift by +1
         if death_age >= start_age:
-            net_flows[death_age - start_age] += net_death_benefit
+            net_flows[death_age - start_age + 1] += net_death_benefit
 
         # Compute IRR
         irr = nf.irr(net_flows)
@@ -88,7 +88,7 @@ def main():
                 color=alt.condition(
                     alt.datum["Net Flow"] >= 0,
                     alt.value("steelblue"),  # color for >= 0
-                    alt.value("red"),  # color for < 0
+                    alt.value("red"),       # color for < 0
                 ),
                 tooltip=["Age", "Net Flow"],
             )
@@ -97,7 +97,6 @@ def main():
         )
 
         st.altair_chart(chart, use_container_width=True)
-
 
 if __name__ == "__main__":
     main()
